@@ -8,6 +8,8 @@ import { deepPurple, grey, amber } from "@mui/material/colors";
 import { TextField } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import { SERVER_BACK } from "../../../paths/path";
 
 const BoxStyle = styled(Box)({
   padding: "20px",
@@ -36,18 +38,20 @@ export default function CreatorForm({ fillFormFn }) {
     telephone: null,
     typeOfDocument: null, //-------> tipo de identificacion.
     numberOfDocument: null,
+    cafecito: null,
     // termsAndConditions: false,
   });
   const [errors, setErrors] = useState({});
   const [personSelected, setPersonSelected] = useState(false);
   const { user } = useAuth0();
+  const navigate = useNavigate();
 
   // -------- TRAER LA LISTA DE PAISES --------
   const dispatch = useDispatch();
-  const { countries } = useSelector(state => state);
+  const { countries } = useSelector((state) => state);
   useEffect(() => {
     !countries.length && dispatch(getCountries());
-  }, [])
+  }, []);
 
   function validateForm(state) {
     const errors = {};
@@ -79,6 +83,10 @@ export default function CreatorForm({ fillFormFn }) {
     } else if (!/^[0-9]/.test(state.numberOfDocument)) {
       errors.numberOfDocument = "Número de identificación debe ser válido.";
     }
+    // cafecito
+    // if (state.cafecito && !/(http[s]?:\/\/cafecito.app\/)([^\/\s]+\/)(.*)/.test(state.cafecito)) {
+    //   errors.cafecito = "Debe ser un link de cafecito válido.";
+    // }
     // termsAndConditions
     // if (!state.termsAndConditions) {
     //     errors.termsAndConditions = "Debe aceptar los términos y condiciones.";
@@ -148,10 +156,9 @@ export default function CreatorForm({ fillFormFn }) {
         formDocBack.append("extra", "");
         formDocBack.append("file", documents.back);
         const rBack = (
-          await axios.post("http://localhost:3001/upload/inter", formDocBack)
+          await axios.post(`${SERVER_BACK}/upload/inter`, formDocBack)
         )?.data;
         if (typeof rBack === "string") responses.backDocument = rBack;
-        // console.log("Respuesta BACK: ", responses.back);
       }
       if (documents?.front && user?.email) {
         const formDocFront = new FormData();
@@ -160,7 +167,7 @@ export default function CreatorForm({ fillFormFn }) {
         formDocFront.append("extra", "");
         formDocFront.append("file", documents.front);
         const rFront = (
-          await axios.post("http://localhost:3001/upload/inter", formDocFront)
+          await axios.post(`${SERVER_BACK}/upload/inter`, formDocFront)
         )?.data;
         if (typeof rFront === "string") responses.frontDocument = rFront;
       }
@@ -174,14 +181,37 @@ export default function CreatorForm({ fillFormFn }) {
           status: "pending",
         })
       );
-      Swal.fire(
-        "Solicitud enviada correctamente, en breve nos comunicaremos con usted."
-      );
+      fillFormFn(true);
+      
+      Swal.fire({
+        title: "Solicitud enviada correctamente, en breve nos comunicaremos con usted.",
+        width: 600,
+        timer: 3000,
+        timerProgressBar: true,
+        padding: '1em',
+        icon: "success",
+        color: '#716add',
+        background: 'black',
+        backdrop: `
+          rgba(0,0,123,0.2)0  `,
+        confirmButtonText: 'OK!',
+      });
+      navigate("/profile");
     } else {
       Swal.fire({
-        icon: "error",
         title: "Porfavor revise los datos ingresados",
+        width: 600,
+        timer: 3000,
+        timerProgressBar: true,
+        padding: '1em',
+        icon: "error",
+        color: '#716add',
+        background: 'black',
+        backdrop: `
+          rgba(0,0,123,0.2)0  `,
+        confirmButtonText: 'OK!',
       });
+     
     }
   };
 
@@ -210,16 +240,12 @@ export default function CreatorForm({ fillFormFn }) {
                 },
               }}
             >
-              {/* <MenuItemStyle value="" disabled selected>
-                Seleccione un país
-              </MenuItemStyle> */}
-
               {countries.length
                 ? countries.map((country) => (
-                  <MenuItemStyle key={country.id} value={country.name}>
-                    {country.name}
-                  </MenuItemStyle>
-                ))
+                    <MenuItemStyle key={country.id} value={country.name}>
+                      {country.name}
+                    </MenuItemStyle>
+                  ))
                 : null}
             </SelectStyle>
           </div>
@@ -230,14 +256,6 @@ export default function CreatorForm({ fillFormFn }) {
         <div>
           <div>
             <label htmlFor="people">Persona</label>
-            {/* <SelectStyle name="people" onChange={handleOnSelect}>
-              <MenuItemStyle value="" disabled selected>
-                Seleccione una opción
-              </MenuItemStyle>
-              <MenuItemStyle value="true">Persona Natural</MenuItemStyle>
-              <MenuItemStyle value="false">Persona Jurídica</MenuItemStyle>
-            </SelectStyle> */}
-
             <Box>
               {/* {" "} */}
               <SelectStyle
@@ -362,15 +380,6 @@ export default function CreatorForm({ fillFormFn }) {
                 <MenuItemStyle value="ruc">RUC</MenuItemStyle>
               </SelectStyle>
             </Box>
-            {/*    <SelectStyle name="typeOfDocument" onChange={handleOnSelect}>
-              
-              <MenuItemStyle value="" disabled selected>
-                Seleccione una opción
-              </MenuItemStyle>
-              <MenuItemStyle value="dni">DNI</MenuItemStyle>
-              <MenuItemStyle value="pasaporte">Pasaporte</MenuItemStyle>
-              <MenuItemStyle value="ruc">RUC</MenuItemStyle>
-            </SelectStyle> */}
           </div>
           {errors.typeOfDocument && <span>{errors.typeOfDocument}</span>}
         </div>
@@ -423,17 +432,22 @@ export default function CreatorForm({ fillFormFn }) {
             />
           </div>
         </div>
-        {/* <div>
-                    <div>
-                        <label htmlFor="mail">Acepte los </label>
-                        <Link to={'/terms'}>términos y condiciones</Link>
-                        <input
-                            type="checkbox"
-                            name="termsAndConditions"
-                            onChange={handleOnCheckbox} />
-                    </div>
-                    {errors.termsAndConditions && <span>{errors.termsAndConditions}</span>}
-                </div> */}
+
+        {/* Link de cafecito */}
+        <div>
+          <div>
+            <label>Tu cafecito ☕</label>
+            <p>Si usted desea recibir donaciones, complete el siguiente campo.</p>
+            <input
+              type="text"
+              name="cafecito"
+              value={input.cafecito}
+              onChange={handleOnChange}
+              placeholder="Ingrese el link de su cafecito"
+            />
+          </div>
+          {errors.cafecito && <span>{errors.cafecito}</span>}
+        </div>
         <div>
           <button type="submit">Registrarse</button>
         </div>

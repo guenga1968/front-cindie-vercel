@@ -335,7 +335,7 @@ function View() {
             ref={playerRef}
             width="100%"
             height="100%"
-            url= {require('./video.mp4')}
+            url= 'https://www.youtube.com/watch?v=iclPAx8jMOA'
             pip={pip}
             playing={playing}
             controls={false}

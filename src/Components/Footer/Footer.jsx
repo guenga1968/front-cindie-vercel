@@ -4,6 +4,7 @@ import Container from "@mui/material/Container";
 import Link from "@mui/material/Link";
 import {  styled } from "@mui/system";
 import {  deepPurple } from "@mui/material/colors";
+import { Grid } from "@mui/material";
 
 const StyledLink = styled(Link)({
     marginRight: 150,
@@ -16,7 +17,6 @@ const StyledLink = styled(Link)({
 const BoxStyle = styled(Box)({
     opacity:0.85 ,
     backgroundColor: "#311b92",
-  
 })
 const navlinks = [
   { name: "Nosotros", href: "http://localhost:3000/about" },
@@ -34,19 +34,11 @@ export default function Footer() {
         flexDirection: "column",
         minHeight: "50vh",
         alignContent: "space-between",
-        width:"100%"
       }}
     >
-      <BoxStyle
-        component="footer"
-        sx={{
-          py: 1,
-          px: 1,
-          mt: "auto",
-        }}
-
-      >
-        <Container maxWidth="sm">
+      <Container maxWidth="sm">
+       <Grid container spacing={3}>
+       <Grid item xs={1} sm={4}>
          
             {navlinks.map((navl) => (
               <StyledLink
@@ -65,9 +57,9 @@ export default function Footer() {
                 {navl.name}
               </StyledLink>
             ))}
-         
-        </Container>
-      </BoxStyle>
+            </Grid>
+            </Grid>
+       </Container>
     </Box>
   );
 }

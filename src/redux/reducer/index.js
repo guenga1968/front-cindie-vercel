@@ -70,7 +70,9 @@ function rootReducer(state = initialState, action) {
             .join(" ")
             .toLowerCase()
             .indexOf(action.payload.toLowerCase()) !== -1 ||
-          filtro(data.Genres, action.payload.toLowerCase())
+            filtro(data.Genres, action.payload.toLowerCase())||
+            data.Country.name.toLowerCase().indexOf(action.payload.toLowerCase()) !==
+              -1
         ) {
           return data;
         }
@@ -218,7 +220,7 @@ function rootReducer(state = initialState, action) {
       };
 
     case MOVIE_DETAIL:
-      /* console.log(action.payload) */
+      console.log('movie detail reducer', action.payload)
       return {
         ...state,
         detalle: action.payload /* Object.keys(action.payload) */,
@@ -256,7 +258,7 @@ function rootReducer(state = initialState, action) {
     //   };
 
     case GET_PROFILE_INFO:
-      console.log("QUE LLEGA AL REDUCER", action.payload);
+      // console.log("QUE LLEGA AL REDUCER", action.payload);
       return {
         ...state,
         profileInfo: action.payload,

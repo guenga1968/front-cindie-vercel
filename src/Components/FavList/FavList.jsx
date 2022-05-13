@@ -14,6 +14,7 @@ import {
   getProfileInfo,
 } from "../../redux/actions";
 import { Paper } from "material-ui";
+import Swal from 'sweetalert2'
 import { Modal } from "@mui/material";
 const ImgFav = styled("img")({
     height: "400px",
@@ -52,7 +53,20 @@ export default function FavList(userId) {
   }, [])
  
   function handleOnClick(payload) {
-    dispatch(deleteFavFilm(payload));
+    dispatch(deleteFavFilm(payload))
+    Swal.fire({
+      title: "Este proyecto ya no es de tus favoritos &#128552;",
+      width: 600,
+      timer: 3000,
+      timerProgressBar: true,
+      padding: '1em',
+      icon: "warning",
+      color: '#716add',
+      background: 'black',
+      backdrop: `
+        rgba(0,0,123,0.2)0  `,
+      confirmButtonText: 'OK',
+    });
   }
 
   console.log("DATOS",profileInfo);
@@ -60,7 +74,7 @@ export default function FavList(userId) {
   return (
     <Box>
       <div>
-        {favs &&
+        {favs.length ?
           favs.map((peli) => {
             let favDispatch = {
               idPeli: peli.id,
@@ -86,7 +100,7 @@ export default function FavList(userId) {
                   </IconButton>
                 </Box>
                 <Typography>{peli.title}</Typography>
-                <Modal
+                {/* <Modal
                   open={open}
                   onClose={handleClose}
                   aria-labelledby="modal-modal-title"
@@ -98,16 +112,21 @@ export default function FavList(userId) {
                       variant="h6"
                       component="h2"
                     >
-                      Pelicula eliminada con exito
+                      Pelicula eliminada con éxito
                     </Typography>
                     <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                      Este film yan o aparecera en tu lista :(
+                      Este film ya no aparecerá en tu lista :(
                     </Typography>
                   </BoxFav>
-                </Modal>
+                </Modal> */}
              </>
             );
-          })}
+          }) : (
+            <>
+            <Typography>No tienes peliculas favoritas</Typography>
+            <Typography>Te invitamos a recorrer todo nuestro contenido :)</Typography>
+            </>
+          )}
       </div>
     </Box>
   );
