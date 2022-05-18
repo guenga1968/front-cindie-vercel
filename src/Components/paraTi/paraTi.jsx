@@ -36,7 +36,7 @@ export default function ParaTi({ userId }) {
 
   genres3.forEach(g =>
     allMovies?.forEach(p => {
-      if (p.Genres.includes(g)) recomendados.push(g);
+      if (p.Genres.includes(g)) recomendados.push(p);
     })
   );
   let recomendados2 = genres3
