@@ -14,7 +14,7 @@ import {
   // SIGN_UP_USER,
   SUBSCRIBE,
   GET_FAV,
-  DELETE_USER_INFORMATION,
+  /* DELETE_USER_INFORMATION, */
   // HANDLE_CAME_BACK_TO_BASIC,
   // GET_USER_INFO,
   GET_PLAN_INFO,
@@ -27,6 +27,17 @@ import {
   UPDATE_COMMENT,
   GET_COMMENTS,
   DELETE_COMMENT,
+  GET_USERS,
+  CLEAN_STATE,
+  GET_PROFILE_INFO_BY_ID,
+  CANCEL_SUBSCRIPTION,
+  DELETE_EXCEDED_FILMS,
+  DELETE_FILM,
+  GET_PROFILE_INFO_BY_ID_USER,
+  KEEP_FILM,
+  GET_USER_HIDDEN_FILMS,
+  KEEP_FILMS_ARRAY,
+  DELETE_FILMS_USER,
 } from "./actionstype";
 import { SERVER_BACK } from "../../paths/path";
 
@@ -36,6 +47,20 @@ export function getMovies() {
     try {
       return dispatch({
         type: GET_MOVIES,
+        payload: json.data,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+}
+
+export function getUsers() {
+  return async function (dispatch) {
+    let json = await axios.get(`${SERVER_BACK}/users`);
+    try {
+      return dispatch({
+        type: GET_USERS,
         payload: json.data,
       });
     } catch (error) {
@@ -71,6 +96,72 @@ export function postMovie(movieForm) {
   };
 }
 
+export function deleteFilm(id) {
+  return async function (dispatch) {
+    try {
+      await axios.delete(`${SERVER_BACK}/films/${id}`);
+      return dispatch({
+        type: DELETE_FILM,
+      });
+    } catch (error) {
+      console.log("deleteFilm action", error);
+    }
+  };
+}
+
+export function keepFilm(peli) {
+  return async function (dispacth) {
+    const resp = await axios.put(`${SERVER_BACK}/films`, peli);
+    return dispacth({
+      type: KEEP_FILM,
+    });
+  };
+}
+
+export function keepFilmsArray(filmsArray) {
+  return async function (dispacth) {
+    // const resp = await axios.put(`${SERVER_BACK}/films`, filmsArray);
+    // tenemos que pasarle el array de pelis a guardar, osea el array de pelis
+    // a modificar su status en 'approved'.
+    await axios.put(`${SERVER_BACK}/films/updateFilms`, filmsArray);
+    // esta ruta devuelve un arreglo con los proyectos actualizado en 'approved'
+    return dispacth({
+      type: KEEP_FILMS_ARRAY,
+    });
+  };
+}
+
+export function deleteFilmsUser(email) {
+  return async function (dispatch) {
+    const resp = (
+      await axios.delete(`${SERVER_BACK}/films/forUser`, { data: email })
+    )?.data;
+    return dispatch({ type: DELETE_FILMS_USER, payload: [] });
+  };
+}
+export function deleteExcededFilms(filmsToDelete, userId) {
+  return async function (dispatch) {
+    try {
+      // borro los pelis que exceden el limite
+      await axios.delete(`${SERVER_BACK}/films/del`, {
+        data: {
+          filmsToDelete: filmsToDelete,
+        },
+      });
+      // obtengo los pelis actuales del usuario
+      let actualFilms = await axios.get(
+        `${SERVER_BACK}/users/getFilmsById/${userId}`
+      );
+      return dispatch({
+        type: DELETE_EXCEDED_FILMS,
+        payload: actualFilms.data,
+      });
+    } catch (error) {
+      console.log("deleteExcededFilms action", error);
+    }
+  };
+}
+
 export function getMoviesByGenre(payload) {
   return async function (dispatch) {
     try {
@@ -95,6 +186,23 @@ export function getMoviesByGenre(payload) {
           payload: ["No films"],
         });
       }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+}
+
+export function getUserHiddenFilms(email) {
+  return async function (dispatch) {
+    try {
+      const user = (await axios.get(`${SERVER_BACK}/users/byemail/${email}`))
+        ?.data;
+      const resp = (await axios.get(`${SERVER_BACK}/films/hidden/${user.id}`))
+        ?.data;
+      return dispatch({
+        type: GET_USER_HIDDEN_FILMS,
+        payload: resp,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -177,6 +285,14 @@ export function renderMovieDetails(id) {
     } catch (error) {
       console.log(error);
     }
+  };
+}
+
+export function cleanState() {
+  return async function (dispatch) {
+    return dispatch({
+      type: CLEAN_STATE,
+    });
   };
 }
 
@@ -291,15 +407,46 @@ export function getProfileInfo(email) {
   };
 }
 
+export function getProfileInfoById(id) {
+  return async function (dispatch) {
+    try {
+      let response = await axios.get(`${SERVER_BACK}/users/${id}`);
+      return dispatch({
+        type: GET_PROFILE_INFO_BY_ID,
+        payload: response.data,
+      });
+    } catch (error) {
+      console.log("getUserInfoById", error);
+    }
+  };
+}
+
+export function getProfileInfoByIdListUser(id) {
+  return async function (dispatch) {
+    try {
+      let response = await axios.get(`${SERVER_BACK}/users/${id}`);
+      return dispatch({
+        type: GET_PROFILE_INFO_BY_ID_USER,
+        payload: response.data,
+      });
+    } catch (error) {
+      console.log("getUserInfoById", error);
+    }
+  };
+}
+
 export function validateSubscription(email) {
   return async function (dispatch) {
     try {
-      let response = await axios.get(
-        `${SERVER_BACK}/payment/validate/${email}`
-      );
-      dispatch({
+      const val = (await axios.get(`${SERVER_BACK}/payment/validate/${email}`))
+        ?.data;
+      const user = (await axios.get(`${SERVER_BACK}/users/byemail/${email}`))
+        ?.data;
+      const resp = (await axios.get(`${SERVER_BACK}/films/hidden/${user.id}`))
+        ?.data;
+      return dispatch({
         type: VALIDATE_SUBSCRIPTION,
-        payload: response.data,
+        payload: { user: val, films: resp },
       });
     } catch (error) {
       console.log("validateSubscription", error);
@@ -320,6 +467,17 @@ export function updateSubscription(props) {
     }
   };
 }
+
+// export function upgradeSubscription(payload) {
+//   // el payload que llega es el nuevo plan.
+//   return async function (dispatch) {
+//     try {
+
+//     } catch (error) {
+//       console.log("upgradeSubscription action", error);
+//     }
+//   };
+// }
 
 export function subscribe(payload) {
   return async function (dispatch) {
@@ -351,6 +509,29 @@ export function paySubscription(payload) {
       });
     } catch (err) {
       console.log("subscribe", err);
+    }
+  };
+}
+
+export function cancelSubscription(email) {
+  return async function (dispatch) {
+    try {
+      //busco el id de la suscripción a cancelar.
+      const id = await axios.get(`${SERVER_BACK}/payment/${email}`);
+      //cancelo la suscripción.
+      await axios.put(`${SERVER_BACK}/payment/cancel/${id.data}`);
+      //actualizo la prop subscription en 'Free'
+      const userUpdated = await axios.put(`${SERVER_BACK}/users/modif`, {
+        email: email,
+        subcription: "Free",
+        status: "creator approved",
+      });
+      return dispatch({
+        type: CANCEL_SUBSCRIPTION,
+        payload: userUpdated.data,
+      });
+    } catch (error) {
+      console.log("cancelSubscription action", error);
     }
   };
 }

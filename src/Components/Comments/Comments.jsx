@@ -1,25 +1,45 @@
-// div que contiene al commentform y componentes comment 
+// div que contiene al commentform y componentes comment
 import { useState, useEffect } from "react";
 import CommentForm from "./CommentForm";
 import Comment from "./Comment";
 import { useDispatch, useSelector } from "react-redux";
 import { getComments } from "../../redux/actions";
+import { Box, Paper, styled, Typography } from "@mui/material";
+import { deepPurple } from "@mui/material/colors";
+import "./comments.modules.css"
+const Titulo = styled(Typography)({
+  color: "black ",
+  fontSize: "30px",
+  fontFamily: "Koulen"
+});
+const BoxStyle = styled(Box)({
+  padding: "5px",
+});
+const NameStyle = styled(Paper)({
+  paddingLeft:20,
+  paddingRight:20,
+  backgroundColor: "transparent",
+  opacity: "90%",
+  borderRadius: 20,
+  display:"inline-block",
+  paddingTop:20,
+  paddingBottom:20,
+  overflow: 'auto',
+  maxHeight: 520,
+  width: "100%",
+  marginLeft: "20px"
+});
 
 const Comments = ({ filmId, userId, username, image }) => {
-  // useEffect(() => {
-  //   getCommentsApi().then((data) => {
-  //     setBackendComments(data);
-  //   });
-  // }, []);
 
-  const dispatch = useDispatch()
-  const allComments = useSelector(state => state.comments)
+  const dispatch = useDispatch();
+  const allComments = useSelector(state => state.comments);
 
   useEffect(() => {
     dispatch(getComments(filmId))
   }, [dispatch])
 
-  console.log("ALL COMMENTS", allComments)
+  /* console.log("ALL COMMENTS", allComments) */
 
 
   // autho -> email -> profileinfo -> userId
@@ -34,30 +54,19 @@ const Comments = ({ filmId, userId, username, image }) => {
   //   CommentId: commentId, (1)
   //   FilmId: filmId,
   // });
-
   const infoPost = {
     userId: userId,
     filmId: filmId,
     formType: "postear",
     username,
     image,
-  }
+  };
   return (
-    <div>
-      <h3>Comentarios</h3>
+    <NameStyle>
+      {/* <Titulo variant="bold">Comentarios</Titulo> */}
       <CommentForm info={infoPost} />
-      {allComments ? allComments?.map(p => <Comment comment={p} id={p.id} userId={userId}/*usernameComment={username} imageComment={image}*/ />) : "0"}
-    </div>
-
-    /* <CommentForm filmId= {filmId} userId={userId} /> 
-     <div>
-      <Comment
-        currentUserId={currentUserId}
-      />
-      {/* {rootComments.map((rootComment) => (
-      ))}
-    </div> */
-
+      {allComments ? allComments?.map(p => <BoxStyle><Comment comment={p} id={p.id} userId={userId} /></BoxStyle>) : "0"}
+    </NameStyle>
   );
 };
 

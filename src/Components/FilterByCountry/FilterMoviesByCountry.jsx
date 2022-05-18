@@ -14,7 +14,7 @@ const MenuItemStyle = styled(MenuItem)({
 
 const SelectStyle = styled(TextField)({
   borderRadius: 2,
-  width: 160,
+  width: 90,
   padding: 0,
 });
 
@@ -44,6 +44,7 @@ export default function FilterMovieByCountry() {
         label="
   País"
         variant="outlined"
+        value={country}
         size="small"
         sx={{
           ":active": {

@@ -5,7 +5,7 @@ import { styled } from "@mui/system";
 import { deepPurple, grey, amber } from "@mui/material/colors";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { Box } from "@material-ui/core";
+
 import { Typography } from "@material-ui/core";
 import { useAuth0 } from "@auth0/auth0-react";
 import {
@@ -14,26 +14,32 @@ import {
   getProfileInfo,
 } from "../../redux/actions";
 import { Paper } from "material-ui";
-import Swal from 'sweetalert2'
-import { Modal } from "@mui/material";
+import Swal from "sweetalert2";
+import { Box, Modal } from "@mui/material";
 const ImgFav = styled("img")({
-    height: "400px",
-    width:"auto"
-})
-const BoxFav =styled(Box)({
-    position: "absolute",
-     top: "50%",
-     left: "50%",
-     transform: "translate(-50%, -50%)",
-     width: 400,
-     backgroundColor: grey[700],
-     border: "none",
-     padding:10,
-     boxShadow: 24,
-     borderRadius:5,
-     color: "black",
-     p: 4,
-   });
+  height: "400px",
+  width: "auto",
+});
+const BoxFav = styled(Box)({
+  backgroundColor: "#682f8a",
+  border: "none",
+  justifyContent: "space-around",
+  alignItems: "center",
+  boxShadow: 24,
+  borderRadius: 5,
+  display: "flex",
+  width: "fit-content",
+  paddingRight: 10,
+});
+const BoxFavG = styled(Box)({
+  border: "none",
+  justifyContent: "space-between",
+  alignItems: "center",
+  borderRadius: 5,
+  display: "flex",
+  overflow: "auto",
+  padding: 50,
+});
 export default function FavList(userId) {
   const { user } = useAuth0();
   let dispatch = useDispatch();
@@ -44,48 +50,52 @@ export default function FavList(userId) {
   const handleOpen = () => setOpen(true);
   const profileInfo = useSelector((state) => state.profileInfo);
 
-  console.log("USERIDDD", userId)
-  let idFavs = userId?.userId
-  console.log("IDFAVSSS", idFavs)
+  // console.log("USERIDDD", userId)
+  let idFavs = userId?.userId;
+  // console.log("IDFAVSSS", idFavs)
 
-  useEffect(()=>{
-    dispatch(getFavorites(idFavs))
-  }, [])
- 
+  useEffect(() => {
+    dispatch(getFavorites(idFavs));
+  }, []);
+
   function handleOnClick(payload) {
-    dispatch(deleteFavFilm(payload))
+    dispatch(deleteFavFilm(payload));
     Swal.fire({
       title: "Este proyecto ya no es de tus favoritos &#128552;",
       width: 600,
       timer: 3000,
       timerProgressBar: true,
-      padding: '1em',
+      padding: "1em",
       icon: "warning",
-      color: '#716add',
-      background: 'black',
+      color: "#716add",
+      background: "black",
       backdrop: `
         rgba(0,0,123,0.2)0  `,
-      confirmButtonText: 'OK',
+      confirmButtonText: "OK",
     });
   }
 
-  console.log("DATOS",profileInfo);
- 
+  console.log("DATOS", profileInfo);
+
   return (
-    <Box>
-      <div>
-        {favs.length ?
-          favs.map((peli) => {
-            let favDispatch = {
-              idPeli: peli.id,
-              email: user.email,
-            };
-            return (
-                <>
-                <Box>
-                  <ImgFav src={peli.poster} alt="Poster" />
+    <BoxFavG>
+      {favs.length ? (
+        favs.map((peli) => {
+          let favDispatch = {
+            idPeli: peli.id,
+            email: user.email,
+          };
+          return (
+            <>
+              <Box paddingRight={5}>
+                <ImgFav src={peli.poster} alt="Poster" />
+                <br></br>
+                <BoxFav>
                   <IconButton
-                    onClick={() => {handleOnClick({ favDispatch });(handleOpen())}}
+                    onClick={() => {
+                      handleOnClick({ favDispatch });
+                      handleOpen();
+                    }}
                     value={favDispatch}
                   >
                     <HeartBrokenIcon
@@ -98,36 +108,24 @@ export default function FavList(userId) {
                       fontSize="large"
                     />{" "}
                   </IconButton>
-                </Box>
-                <Typography>{peli.title}</Typography>
-                {/* <Modal
-                  open={open}
-                  onClose={handleClose}
-                  aria-labelledby="modal-modal-title"
-                  aria-describedby="modal-modal-description"
-                >
-                  <BoxFav>
-                    <Typography
-                      id="modal-modal-title"
-                      variant="h6"
-                      component="h2"
-                    >
-                      Pelicula eliminada con éxito
-                    </Typography>
-                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                      Este film ya no aparecerá en tu lista :(
-                    </Typography>
-                  </BoxFav>
-                </Modal> */}
-             </>
-            );
-          }) : (
-            <>
-            <Typography>No tienes peliculas favoritas</Typography>
-            <Typography>Te invitamos a recorrer todo nuestro contenido :)</Typography>
+                  <Typography variant="h6" fontWeight="medium">
+                    {peli.title}
+                  </Typography>
+                </BoxFav>
+              </Box>
             </>
-          )}
-      </div>
-    </Box>
+          );
+        })
+      ) : (
+        <>
+          <Typography variant="h6" fontWeight="medium">
+            No tienes peliculas favoritas
+          </Typography>
+          <Typography variant="h6" fontWeight="medium">
+            Te invitamos a recorrer todo nuestro contenido :)
+          </Typography>
+        </>
+      )}
+    </BoxFavG>
   );
 }

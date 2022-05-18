@@ -11,14 +11,13 @@ import {
   GET_GENRES,
   GET_COUNTRIES,
   MOVIE_DETAIL,
-  // SIGN_UP_USER,
   GET_FAV,
-  // DELETE_USER_INFORMATION,
   // CAME_BACK_TO_BASIC,
   // GET_USER_INFO,
   GET_PLAN_INFO,
   PAY_SUBSCRIPTION,
   GET_PROFILE_INFO,
+  GET_PROFILE_INFO_BY_ID,
   VALIDATE_SUBSCRIPTION,
   DELETE_FAV,
   // comments
@@ -26,6 +25,13 @@ import {
   UPDATE_COMMENT,
   GET_COMMENTS,
   DELETE_COMMENT,
+  GET_USERS,
+  CLEAN_STATE,
+  CANCEL_SUBSCRIPTION,
+  DELETE_EXCEDED_FILMS,
+  GET_PROFILE_INFO_BY_ID_USER,
+  GET_USER_HIDDEN_FILMS,
+  DELETE_FILMS_USER,
 } from "../actions/actionstype";
 
 import { DATE_DES, NAME_ASC, COM_DES, RATING_ASC } from "./Ordercosntants";
@@ -41,13 +47,19 @@ const initialState = {
   plans: [],
   paymentLink: "",
   profileInfo: {},
+  profileInfoUser: {},
   comments: [],
+  users: [],
+  usersfiltrados: [],
+  perfilUsuario: {},
+  userHiddenFilms: [],
 };
 
 function rootReducer(state = initialState, action) {
   switch (action.type) {
     case SEARCH_PELIS:
       let pelisporfiltrar = state.peliculas;
+      let usersporfiltrar = state.users;
 
       const filtro = (array, genre) => {
         let contador = false;
@@ -60,6 +72,15 @@ function rootReducer(state = initialState, action) {
         return contador;
       };
 
+      let userFiltro = usersporfiltrar.filter((data) => {
+        if (
+          data?.username.toLowerCase().indexOf(action.payload.toLowerCase()) !==
+          -1
+        ) {
+          return data;
+        }
+      });
+
       let peliFiltro = pelisporfiltrar.filter((data) => {
         if (
           data.title.toLowerCase().indexOf(action.payload.toLowerCase()) !==
@@ -70,9 +91,10 @@ function rootReducer(state = initialState, action) {
             .join(" ")
             .toLowerCase()
             .indexOf(action.payload.toLowerCase()) !== -1 ||
-            filtro(data.Genres, action.payload.toLowerCase())||
-            data.Country.name.toLowerCase().indexOf(action.payload.toLowerCase()) !==
-              -1
+          filtro(data.Genres, action.payload.toLowerCase()) ||
+          data.Country.name
+            .toLowerCase()
+            .indexOf(action.payload.toLowerCase()) !== -1
         ) {
           return data;
         }
@@ -81,11 +103,19 @@ function rootReducer(state = initialState, action) {
         return {
           ...state,
           pelisfiltradas: peliFiltro,
+          usersfiltrados: [],
+        };
+      } else if (userFiltro.length) {
+        return {
+          ...state,
+          usersfiltrados: userFiltro,
+          pelisfiltradas: state.peliculas,
         };
       } else {
         return {
           ...state,
           pelisfiltradas: ["No films"],
+          usersfiltrados: ["No films"],
         };
       }
 
@@ -94,6 +124,19 @@ function rootReducer(state = initialState, action) {
         ...state,
         peliculas: action.payload,
         pelisfiltradas: action.payload,
+      };
+
+    case GET_USER_HIDDEN_FILMS:
+      return {
+        ...state,
+        userHiddenFilms: action.payload,
+      };
+
+    case GET_USERS:
+      return {
+        ...state,
+        users: action.payload,
+        usersfiltrados: [],
       };
 
     case ORDER_DATE:
@@ -213,17 +256,21 @@ function rootReducer(state = initialState, action) {
       };
 
     case GET_COUNTRIES:
-      console.log('payload de countries', action.payload)
       return {
         ...state,
         countries: action.payload,
       };
 
     case MOVIE_DETAIL:
-      console.log('movie detail reducer', action.payload)
       return {
         ...state,
         detalle: action.payload /* Object.keys(action.payload) */,
+      };
+
+    case CLEAN_STATE:
+      return {
+        ...state,
+        detalle: {} /* Object.keys(action.payload) */,
       };
 
     // case SIGN_UP_USER:
@@ -258,10 +305,20 @@ function rootReducer(state = initialState, action) {
     //   };
 
     case GET_PROFILE_INFO:
-      // console.log("QUE LLEGA AL REDUCER", action.payload);
       return {
         ...state,
         profileInfo: action.payload,
+      };
+
+    case GET_PROFILE_INFO_BY_ID:
+      return {
+        ...state,
+        profileInfo: action.payload,
+      };
+    case GET_PROFILE_INFO_BY_ID_USER:
+      return {
+        ...state,
+        profileInfoUser: action.payload,
       };
 
     // case GET_USER_INFO:
@@ -272,17 +329,17 @@ function rootReducer(state = initialState, action) {
     // };
 
     case VALIDATE_SUBSCRIPTION:
-      let updatedSubscription = "Free";
-      if ((action.payload.results[0].status = "pending")) {
-        updatedSubscription = action.payload.results[2].reason;
-        return {
-          ...state,
-          profileInfo: {
-            ...state.profileInfo,
-            subcription: updatedSubscription,
-          },
-        };
-      }
+      return {
+        ...state,
+        profileInfo: action.payload.user,
+        userHiddenFilms: action.payload.films,
+      };
+
+    case DELETE_FILMS_USER:
+      return {
+        ...state,
+        userHiddenFilms: action.payload,
+      };
 
     case GET_PLAN_INFO:
       return {
@@ -292,11 +349,19 @@ function rootReducer(state = initialState, action) {
 
     case DELETE_FAV:
       let deletedFavs = state.favorites.filter((p) => p.id !== action.payload);
-      console.log("DELETED FAVS", deletedFavs);
       return {
         ...state,
         favorites: deletedFavs,
       };
+
+    // case DELETE_EXCEDED_FILMS:
+    //   return {
+    //     ...state,
+    //     profileInfo: {
+    //       ...state.profileInfo,
+    //       films: action.payload,
+    //     }
+    //   }
 
     case PAY_SUBSCRIPTION:
       return {
@@ -304,17 +369,23 @@ function rootReducer(state = initialState, action) {
         paymentLink: action.payload.init_point,
       };
 
+    case CANCEL_SUBSCRIPTION:
+      return {
+        ...state,
+        profileInfo: action.payload,
+      };
+
     // comments y en estado inicial
     case GET_COMMENTS:
       return {
         ...state,
         comments: action.payload,
-      }
+      };
 
     case ADD_COMMENT:
       return {
         ...state,
-        comments: [...state.comments, action.payload],
+        comments: [action.payload, ...state.comments],
       };
 
     case UPDATE_COMMENT:
@@ -329,11 +400,13 @@ function rootReducer(state = initialState, action) {
         comments: updatedComments,
       };
     case DELETE_COMMENT:
-      let filteredComments = state.comments.filter( c => c.id !== action.payload)
-      return{
+      let filteredComments = state.comments.filter(
+        (c) => c.id !== action.payload
+      );
+      return {
         ...state,
-        comments: filteredComments
-      }
+        comments: filteredComments,
+      };
     default:
       return state;
   }

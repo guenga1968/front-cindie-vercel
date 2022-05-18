@@ -277,30 +277,30 @@ function View() {
     setState({ ...state, muted: !state.muted });
   };
 
-  const addBookmark = () => {
-    const canvas = canvasRef.current;
-    canvas.width = 160;
-    canvas.height = 90;
-    const ctx = canvas.getContext("2d");
+  // const addBookmark = () => {
+  //   const canvas = canvasRef.current;
+  //   canvas.width = 160;
+  //   canvas.height = 90;
+  //   const ctx = canvas.getContext("2d");
 
-    ctx.drawImage(
-      playerRef.current.getInternalPlayer(),
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-    const dataUri = canvas.toDataURL();
-    canvas.width = 0;
-    canvas.height = 0;
-    const bookmarksCopy = [...bookmarks];
-    bookmarksCopy.push({
-      time: playerRef.current.getCurrentTime(),
-      display: format(playerRef.current.getCurrentTime()),
-      image: dataUri,
-    });
-    setBookmarks(bookmarksCopy);
-  };
+  //   ctx.drawImage(
+  //     playerRef.current.getInternalPlayer(),
+  //     0,
+  //     0,
+  //     canvas.width,
+  //     canvas.height
+  //   );
+  //   const dataUri = canvas.toDataURL();
+  //   canvas.width = 0;
+  //   canvas.height = 0;
+  //   const bookmarksCopy = [...bookmarks];
+  //   bookmarksCopy.push({
+  //     time: playerRef.current.getCurrentTime(),
+  //     display: format(playerRef.current.getCurrentTime()),
+  //     image: dataUri,
+  //   });
+  //   setBookmarks(bookmarksCopy);
+  // };
 
   const currentTime =
     playerRef && playerRef.current
@@ -335,7 +335,7 @@ function View() {
             ref={playerRef}
             width="100%"
             height="100%"
-            url= 'https://www.youtube.com/watch?v=iclPAx8jMOA'
+            url= {require('./video.mp4')}
             pip={pip}
             playing={playing}
             controls={false}
@@ -376,7 +376,7 @@ function View() {
             onPlaybackRateChange={handlePlaybackRate}
             onToggleFullScreen={toggleFullScreen}
             volume={volume}
-            onBookmark={addBookmark}
+            // onBookmark={addBookmark}
           />
         </div>
 
@@ -402,7 +402,7 @@ function View() {
             </Grid>
           ))}
         </Grid> */}
-        <canvas ref={canvasRef} />
+        {/* <canvas ref={canvasRef} /> */}
       </Container>
     </>
   );
