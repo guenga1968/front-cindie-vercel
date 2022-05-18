@@ -169,7 +169,7 @@ export default function Home() {
                 }}
                 className="mySwiper"
               >
-                {allMovies?.map(m => {
+                {estrenos?.map(m => {
                   return (
                     <div height={600}>
                       <SwiperSlide>
