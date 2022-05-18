@@ -36,11 +36,11 @@ export default function ParaTi({ userId }) {
 
   genres3.forEach(g =>
     allMovies?.forEach(p => {
-      if (p.Genres.includes(g)) recomendados.push(p);
+      if (p.Genres.includes(g)) recomendados.push(g);
     })
   );
   let recomendados2 = genres3
-    .map(g => recomendados.filter(m => m.Genres.map(ge => ge.name.includes(g))))
+    .map(g => allMovies.filter(m => m.Genres.map(ge => ge.name.includes(g))))
     .flat();
   let recomendados3 = new Set(recomendados2);
   let recomendados4 = [...recomendados3];
@@ -62,7 +62,7 @@ export default function ParaTi({ userId }) {
     <>
       {favorites.length ? (
         <div>
-          <h4 className="Title paraTi">Para ti</h4>
+          <h4 className="Title paraTi">Tal vez no viste</h4>
           {/* <Grid container> */}
           {/* CARDS */}
           {/* <Grid item xs={12} sm={12} md={9} lg={9} xl={9}> */}

@@ -166,7 +166,8 @@ export default function UserProfile() {
                   <PaperName>
                     <h5 className="Title">Nombre completo</h5>
                     <h2 className="Nombre">
-                      {profileInfo?.name} {profileInfo?.surname}
+                      {/* {profileInfo?.name} {profileInfo?.surname} */}
+                      {(profileInfo?.name && profileInfo?.surname) ? `${profileInfo?.name} ${profileInfo?.surname}` : profileInfo?.username}
                     </h2>
                   </PaperName>
                   <PaperName>
@@ -229,7 +230,7 @@ export default function UserProfile() {
               <PaperFavoritos>
                 <PaperTitulo>
                   <h5 className="Proyectos">
-                    Peliculas favoritas de {profileInfo?.name}
+                    Peliculas favoritas de {profileInfo?.name?profileInfo?.name:profileInfo?.username}
                   </h5>
                 </PaperTitulo>
                 {profileInfo?.id && <FavListUser userId={id} />}
