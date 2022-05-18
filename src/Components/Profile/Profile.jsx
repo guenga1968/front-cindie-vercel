@@ -621,6 +621,7 @@ export default function Profile() {
                             ":hover": {
                               bgcolor: deepPurple[200],
                               color: "black",
+                              cursor: "pointer",
                             },
                           }}
                           color="textPrimary"

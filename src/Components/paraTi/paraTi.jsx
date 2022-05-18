@@ -40,7 +40,7 @@ export default function ParaTi({ userId }) {
     })
   );
   let recomendados2 = genres3
-    .map(g => allMovies.filter(m => m.Genres.map(ge => ge.name.includes(g))))
+    .map(g => recomendados.filter(m => m.Genres.map(ge => ge.name.includes(g))))
     .flat();
   let recomendados3 = new Set(recomendados2);
   let recomendados4 = [...recomendados3];
